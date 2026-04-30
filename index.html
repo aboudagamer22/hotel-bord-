@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Zenith | Luxury Redefined</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (via CDN for simplicity) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#1a2744',
+                        gold: '#c9a84c',
+                        cream: '#faf8f3',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in { opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        .gallery-item img { transition: transform 0.50s cubic-bezier(0.4, 0, 0.2, 1); }
+        .gallery-item:hover img { transform: scale(1.05); }
+        .skew-hover { transition: transform 0.3s ease; }
+        .skew-hover:hover { transform: translateY(-5px); }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        #exit-popup { backdrop-filter: blur(8px); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-cream font-sans text-navy overflow-x-hidden">
+
+    <!-- Loading Skeleton (displayed initially) -->
+    <div id="loader" class="fixed inset-0 z-[100] bg-cream flex flex-col items-center justify-center">
+        <div class="w-16 h-16 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 font-serif italic text-gold tracking-widest uppercase text-sm">Luxe Zenith</p>
+    </div>
+
+    <!-- Sticky Navigation -->
+    <nav id="nav" class="fixed top-0 w-full z-50 transition-all duration-300 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="font-serif text-2xl font-bold tracking-tighter text-gold">LUXE ZENITH</span>
+        </div>
+        
+        <ul class="hidden md:flex gap-8 text-sm font-medium uppercase tracking-widest text-white transition-colors duration-300" id="nav-links">
+            <li><a href="#about" class="hover:text-gold transition">About</a></li>
+            <li><a href="#rooms" class="hover:text-gold transition">Rooms</a></li>
+            <li><a href="#amenities" class="hover:text-gold transition">Amenities</a></li>
+            <li><a href="#offers" class="hover:text-gold transition">Offers</a></li>
+            <li><a href="#gallery" class="hover:text-gold transition">Gallery</a></li>
+        </ul>
+
+        <button class="bg-gold text-navy px-6 py-2.5 rounded-full font-bold text-sm tracking-wide uppercase hover:bg-white hover:text-navy transition-all duration-300 shadow-lg">
+            Book Now
+        </button>
+
+        <!-- Mobile Toggle -->
+        <button class="md:hidden text-white" id="mobile-menu-btn"><i data-lucide="menu"></i></button>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-navy z-[60] flex flex-col items-center justify-center gap-8 text-white translate-x-full transition-transform duration-500">
+        <button class="absolute top-6 right-6" id="close-menu-btn"><i data-lucide="x"></i></button>
+        <a href="#about" class="text-3xl font-serif">About</a>
+        <a href="#rooms" class="text-3xl font-serif">Rooms</a>
+        <a href="#amenities" class="text-3xl font-serif">Amenities</a>
+        <a href="#offers" class="text-3xl font-serif">Offers</a>
+        <a href="#gallery" class="text-3xl font-serif">Gallery</a>
+        <button class="bg-gold text-navy px-10 py-4 rounded-full font-bold uppercase tracking-widest">Book Now</button>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="h-screen relative flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1600&q=80" alt="Luxury Interior" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/40"></div>
+        </div>
+
+        <div class="relative z-10 text-center text-white px-4 max-w-5xl">
+            <h1 class="font-serif text-5xl md:text-8xl mb-6 leading-tight fade-in">Experience Luxury Redefined</h1>
+            <p class="text-xl md:text-2xl font-light mb-12 opacity-90 fade-in">Where every stay becomes an unforgettable memory</p>
+            
+            <!-- Booking Widget -->
+            <div class="bg-white p-4 md:p-8 rounded-2xl shadow-2xl text-navy flex flex-col md:row items-center gap-4 max-w-4xl mx-auto fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+                    <div class="text-left flex flex-col gap-1">
+                        <label class="text-[10px] uppercase font-bold tracking-widest text-gold">Check-In</label>
+                        <input type="date" id="check-in" class="border-b-2 border-cream focus:border-gold outline-none py-2 w-full text-sm">
+                    </div>
+                    <div class="text-left flex flex-col gap-1">
+                        <label class="text-[10px] uppercase font-bold tracking-widest text-gold">Check-Out</label>
+                        <input type="date" id="check-out" class="border-b-2 border-cream focus:border-gold outline-none py-2 w-full text-sm">
+                    </div>
+                    <div class="text-left flex flex-col gap-1">
+                        <label class="text-[10px] uppercase font-bold tracking-widest text-gold">Guests</label>
+                        <select class="border-b-2 border-cream focus:border-gold outline-none py-2 w-full text-sm">
+                            <option>1 Adult</option>
+                            <option selected>2 Adults</option>
+                            <option>3 Adults</option>
+                            <option>Family (2+2)</option>
+                        </select>
+                    </div>
+                    <button id="check-availability" class="bg-navy text-white md:mt-2 h-full py-4 md:py-0 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-gold hover:text-navy transition-all duration-300">
+                        Check Availability
+                    </button>
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-6 mt-4 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    <span class="flex items-center gap-2"><i data-lucide="check-circle" class="w-3"></i> Best Price Guarantee</span>
+                    <span class="flex items-center gap-2"><i data-lucide="check-circle" class="w-3"></i> Free Cancellation</span>
+                    <span class="flex items-center gap-2"><i data-lucide="check-circle" class="w-3"></i> Instant Confirmation</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+            <i data-lucide="chevron-down" class="text-white opacity-50"></i>
+        </div>
+    </section>
+
+    <!-- Social Proof Bar -->
+    <div class="bg-navy text-white py-8 border-y border-white/10">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+                <p class="text-2xl font-serif text-gold">4.9★</p>
+                <p class="text-[10px] uppercase tracking-widest opacity-60">Avg Guest Rating</p>
+            </div>
+            <div>
+                <p class="text-2xl font-serif text-gold">5,000+</p>
+                <p class="text-[10px] uppercase tracking-widest opacity-60">Happy Guests</p>
+            </div>
+            <div>
+                <p class="text-2xl font-serif text-gold">15</p>
+                <p class="text-[10px] uppercase tracking-widest opacity-60">Awards Won</p>
+            </div>
+            <div class="flex flex-col items-center justify-center opacity-80 italic font-serif">
+                Featured in <span class="font-bold underline decoration-gold">Forbes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-center">
+            <div class="relative fade-in">
+                <div class="absolute -top-4 -left-4 w-24 h-24 border-t-2 border-l-2 border-gold -z-10"></div>
+                <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80" alt="Pool" class="rounded-2xl shadow-2xl skew-hover">
+                <div class="absolute -bottom-10 -right-10 bg-white p-6 rounded-2xl shadow-xl hidden md:block">
+                    <p class="text-gold font-serif text-xl italic italic">"A true haven of tranquility"</p>
+                    <p class="text-[10px] uppercase font-bold mt-2 text-gray-400">— Condé Nast Traveler</p>
+                </div>
+            </div>
+            <div class="fade-in">
+                <h2 class="font-serif text-gold text-sm uppercase tracking-[0.3em] mb-4">Dedicated to Perfection</h2>
+                <h3 class="text-4xl md:text-5xl font-serif mb-8 leading-tight">Crafting Moments of Pure Elegance</h3>
+                <p class="text-gray-600 leading-relaxed mb-10">Nestled in the heart of the city's most prestigious district, Luxe Zenith combines heritage charm with futuristic sophistication. Our commitment to bespoke hospitality ensures that your stay is not just a visit, but a legacy experience.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                    <div class="flex flex-col gap-3">
+                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <i data-lucide="map-pin" class="text-gold w-6"></i>
+                        </div>
+                        <p class="font-bold text-xs uppercase tracking-widest">Prime Location</p>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <i data-lucide="sparkles" class="text-gold w-6"></i>
+                        </div>
+                        <p class="font-bold text-xs uppercase tracking-widest">World-Class Spa</p>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <i data-lucide="utensils" class="text-gold w-6"></i>
+                        </div>
+                        <p class="font-bold text-xs uppercase tracking-widest">Michelin Dining</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rooms Section -->
+    <section id="rooms" class="py-24 bg-white/50 px-6">
+        <div class="max-w-7xl mx-auto text-center mb-16">
+            <h2 class="font-serif text-gold text-sm uppercase tracking-[0.3em] mb-4">Curated Sanctuaries</h2>
+            <h3 class="text-4xl md:text-5xl font-serif">Rooms & Royal Suites</h3>
+        </div>
+
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Room Card 1 -->
+            <div class="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all h-full flex flex-col fade-in">
+                <div class="relative overflow-hidden h-64">
+                    <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&q=80" alt="Deluxe" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute top-4 right-4 bg-navy/80 text-white px-3 py-1 rounded-full text-xs font-bold">$299<span class="font-normal opacity-70"> / night</span></div>
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="coffee" class="w-3 text-gold"></i>
+                        <i data-lucide="wifi" class="w-3 text-gold"></i>
+                        <i data-lucide="tv" class="w-3 text-gold"></i>
+                    </div>
+                    <h4 class="text-xl font-serif mb-4">Deluxe City Room</h4>
+                    <p class="text-sm text-gray-500 mb-6 flex-grow">Elegant interiors with floor-to-ceiling windows overlooking the skyline.</p>
+                    <div class="flex gap-4">
+                        <button class="flex-1 border-navy border py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-navy hover:text-white transition">View Details</button>
+                        <button class="flex-1 bg-gold text-navy py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-navy hover:text-white transition">Book</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Room Card 2 -->
+            <div class="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all h-full flex flex-col fade-in">
+                <div class="relative overflow-hidden h-64">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" alt="Suite" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute top-4 right-4 bg-navy/80 text-white px-3 py-1 rounded-full text-xs font-bold">$549<span class="font-normal opacity-70"> / night</span></div>
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="layers" class="w-3 text-gold"></i>
+                        <i data-lucide="wind" class="w-3 text-gold"></i>
+                        <i data-lucide="moon" class="w-3 text-gold"></i>
+                    </div>
+                    <h4 class="text-xl font-serif mb-4">Superior Zen Suite</h4>
+                    <p class="text-sm text-gray-500 mb-6 flex-grow">A spacious sanctuary designed for the modern executive and soul-seeker.</p>
+                    <div class="flex gap-4">
+                        <button class="flex-1 border-navy border py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-navy hover:text-white transition">View Details</button>
+                        <button class="flex-1 bg-gold text-navy py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-navy hover:text-white transition">Book</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Room Card 3 -->
+            <div class="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all h-full flex flex-col fade-in">
+                <div class="relative overflow-hidden h-64">
+                    <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80" alt="Presidential" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute top-4 right-4 bg-navy/80 text-white px-3 py-1 rounded-full text-xs font-bold">$1,299<span class="font-normal opacity-70"> / night</span></div>
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="crown" class="w-3 text-gold"></i>
+                        <i data-lucide="glass-water" class="w-3 text-gold"></i>
+                        <i data-lucide="shield-check" class="w-3 text-gold"></i>
+                    </div>
+                    <h4 class="text-xl font-serif mb-4">Presidential Suite</h4>
+                    <p class="text-sm text-gray-500 mb-6 flex-grow">Unmatched royalty featuring a private library, dining room, and butler service.</p>
+                    <div class="flex gap-4">
+                        <button class="flex-1 border-navy border py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-navy hover:text-white transition">View Details</button>
+                        <button class="flex-1 bg-gold text-navy py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-navy hover:text-white transition">Book</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Room Card 4 -->
+            <div class="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all h-full flex flex-col fade-in">
+                <div class="relative overflow-hidden h-64">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80" alt="Penthouse" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute top-4 right-4 bg-gold text-white px-3 py-1 rounded-full text-xs font-bold">$2,500<span class="font-normal opacity-70"> / night</span></div>
+                </div>
+                <div class="p-6 flex-grow flex flex-col">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="star" class="w-3 text-gold"></i>
+                        <i data-lucide="cloud-sun" class="w-3 text-gold"></i>
+                        <i data-lucide="music" class="w-3 text-gold"></i>
+                    </div>
+                    <h4 class="text-xl font-serif mb-4">Celestial Penthouse</h4>
+                    <p class="text-sm text-gray-500 mb-6 flex-grow">Top-floor masterpiece with 360-degree views and a private heated rooftop pool.</p>
+                    <div class="flex gap-4">
+                        <button class="flex-1 border-navy border py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-navy hover:text-white transition">View Details</button>
+                        <button class="flex-1 bg-gold text-navy py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-navy hover:text-white transition">Book</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-12 text-xs font-bold uppercase tracking-widest text-red-500 animate-pulse">
+            🔴 Only 2 rooms left this weekend!
+        </div>
+    </section>
+
+    <!-- Amenities Section -->
+    <section id="amenities" class="py-24 px-6 bg-navy text-white">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-16 items-center">
+            <div class="md:w-1/3 fade-in">
+                <h2 class="font-serif text-gold text-sm uppercase tracking-[0.3em] mb-4">World Class Facilities</h2>
+                <h3 class="text-4xl font-serif mb-8 leading-tight">Everything You Desire, Within Reach</h3>
+                <p class="opacity-60 leading-relaxed mb-8">From our Michelin-starred kitchen to our Olympic-sized heated pool, every amenity is meticulously designed for your absolute pleasure.</p>
+                <button class="bg-gold text-navy px-8 py-4 rounded-full font-bold uppercase tracking-widest text-sm hover:bg-white transition duration-300">Explore All</button>
+            </div>
+            <div class="md:w-2/3 grid grid-cols-2 lg:grid-cols-4 gap-6 w-full fade-in">
+                <!-- Icon Cards -->
+                <div class="bg-white/5 p-8 rounded-3xl flex flex-col items-center gap-4 hover:bg-gold hover:text-navy transition cursor-default">
+                    <i data-lucide="waves" class="w-10 h-10"></i>
+                    <p class="uppercase font-bold tracking-widest text-[10px]">Infinity Pool</p>
+                </div>
+                <div class="bg-white/5 p-8 rounded-3xl flex flex-col items-center gap-4 hover:bg-gold hover:text-navy transition cursor-default">
+                    <i data-lucide="flower" class="w-10 h-10"></i>
+                    <p class="uppercase font-bold tracking-widest text-[10px]">Luxe Spa</p>
+                </div>
+                <div class="bg-white/5 p-8 rounded-3xl flex flex-col items-center gap-4 hover:bg-gold hover:text-navy transition cursor-default">
+                    <i data-lucide="chef-hat" class="w-10 h-10"></i>
+                    <p class="uppercase font-bold tracking-widest text-[10px]">Gourmet Food</p>
+                </div>
+                <div class="bg-white/5 p-8 rounded-3xl flex flex-col items-center gap-4 hover:bg-gold hover:text-navy transition cursor-default">
+                    <i data-lucide="dumbell" class="w-10 h-10"></i>
+                    <p class="uppercase font-bold tracking-widest text-[10px]">Pro Gym</p>
+                </div>
+                <div class="bg-white/5 p-8 rounded-3xl flex flex-col items-center gap-4 hover:bg-gold hover:text-navy transition cursor-default">
+                    <i data-lucide="concierge-bell" class="w-10 h-10"></i>
+                    <p class="uppercase font-bold tracking-widest text-[10px]">24/7 Concierge</p>
+                </div>
+                <div class="bg-white/5 p-8 rounded-3xl flex flex-col items-center gap-4 hover:bg-gold hover:text-navy transition cursor-default">
+                    <i data-lucide="plane-takeoff" class="w-10 h-10"></i>
+                    <p class="uppercase font-bold tracking-widest text-[10px]">VIP Transfer</p>
+                </div>
+                <div class="bg-white/5 p-8 rounded-3xl flex flex-col items-center gap-4 hover:bg-gold hover:text-navy transition cursor-default">
+                    <i data-lucide="wifi" class="w-10 h-10"></i>
+                    <p class="uppercase font-bold tracking-widest text-[10px]">Ultra WiFi</p>
+                </div>
+                <div class="bg-white/5 p-8 rounded-3xl flex flex-col items-center gap-4 hover:bg-gold hover:text-navy transition cursor-default">
+                    <i data-lucide="martini" class="w-10 h-10"></i>
+                    <p class="uppercase font-bold tracking-widest text-[10px]">Rooftop Bar</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Special Offers Section -->
+    <section id="offers" class="py-24 px-6 overflow-hidden">
+        <div class="max-w-7xl mx-auto mb-16 flex justify-between items-end">
+            <div>
+                <h2 class="font-serif text-gold text-sm uppercase tracking-[0.3em] mb-4">Limited Availability</h2>
+                <h3 class="text-4xl md:text-5xl font-serif">Signature Experiences</h3>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+            <!-- Offer 1 -->
+            <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col border border-cream fade-in">
+                <div class="bg-red-50 text-red-600 px-4 py-2 rounded-full text-xs font-bold inline-block self-start mb-6 uppercase tracking-widest">Early Bird Special</div>
+                <h4 class="text-2xl font-serif mb-4">30% Off Your Suite</h4>
+                <p class="text-gray-500 mb-8 flex-grow">Book at least 45 days in advance to enjoy our most prestigious suites at an exclusive rate.</p>
+                <div class="mb-8">
+                    <p class="text-[10px] uppercase font-bold tracking-widest mb-3 opacity-50">Deal Ends In:</p>
+                    <div class="flex gap-4 countdown" data-time="2026-10-31T23:59:59">
+                        <div class="text-center"><span class="block text-2xl font-serif text-gold">00</span><span class="text-[8px] uppercase font-bold tracking-widest">Days</span></div>
+                        <div class="text-center"><span class="block text-2xl font-serif text-gold">00</span><span class="text-[8px] uppercase font-bold tracking-widest">Hrs</span></div>
+                        <div class="text-center"><span class="block text-2xl font-serif text-gold">00</span><span class="text-[8px] uppercase font-bold tracking-widest">Min</span></div>
+                    </div>
+                </div>
+                <button class="w-full bg-navy text-white py-4 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-gold hover:text-navy transition">Claim Offer</button>
+            </div>
+            <!-- Offer 2 -->
+            <div class="bg-gold p-8 rounded-3xl shadow-xl flex flex-col text-navy scale-105 relative z-10 fade-in">
+                <div class="absolute top-0 right-8 -translate-y-1/2 bg-navy text-white px-6 py-2 rounded-full font-bold text-[10px] uppercase tracking-widest shadow-xl">Most Popular</div>
+                <div class="bg-navy/10 text-navy px-4 py-2 rounded-full text-xs font-bold inline-block self-start mb-6 uppercase tracking-widest">Romantic Getaway</div>
+                <h4 class="text-2xl font-serif mb-4">The Honeymooner's Dream</h4>
+                <p class="opacity-70 mb-8 flex-grow">Complimentary champagne, private rooftop dinner, and personalized spa sessions included.</p>
+                <div class="mb-8">
+                    <p class="text-[10px] uppercase font-bold tracking-widest mb-3 opacity-50">Deal Ends In:</p>
+                    <div class="flex gap-4 countdown" data-time="2026-06-15T12:00:00">
+                        <div class="text-center"><span class="block text-2xl font-serif">00</span><span class="text-[8px] uppercase font-bold tracking-widest">Days</span></div>
+                        <div class="text-center"><span class="block text-2xl font-serif">00</span><span class="text-[8px] uppercase font-bold tracking-widest">Hrs</span></div>
+                        <div class="text-center"><span class="block text-2xl font-serif">00</span><span class="text-[8px] uppercase font-bold tracking-widest">Min</span></div>
+                    </div>
+                </div>
+                <button class="w-full bg-navy text-white py-4 rounded-xl font-bold uppercase tracking-widest text-xs hover:scale-105 transition shadow-lg">Reserve Experience</button>
+                <p class="text-[10px] text-center mt-4 font-bold uppercase tracking-widest opacity-60">Only 3 rooms left at this price!</p>
+            </div>
+            <!-- Offer 3 -->
+            <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col border border-cream fade-in">
+                <div class="bg-green-50 text-green-600 px-4 py-2 rounded-full text-xs font-bold inline-block self-start mb-6 uppercase tracking-widest">Weekend Bliss</div>
+                <h4 class="text-2xl font-serif mb-4">Escape the City Escape</h4>
+                <p class="text-gray-500 mb-8 flex-grow">Book a weekend stay and enjoy complimentary brunch and lazy check-out until 4 PM.</p>
+                <div class="mb-8">
+                    <p class="text-[10px] uppercase font-bold tracking-widest mb-3 opacity-50">Deal Ends In:</p>
+                    <div class="flex gap-4 countdown" data-time="2026-12-25T00:00:00">
+                        <div class="text-center"><span class="block text-2xl font-serif text-gold">00</span><span class="text-[8px] uppercase font-bold tracking-widest">Days</span></div>
+                        <div class="text-center"><span class="block text-2xl font-serif text-gold">00</span><span class="text-[8px] uppercase font-bold tracking-widest">Hrs</span></div>
+                        <div class="text-center"><span class="block text-2xl font-serif text-gold">00</span><span class="text-[8px] uppercase font-bold tracking-widest">Min</span></div>
+                    </div>
+                </div>
+                <button class="w-full bg-navy text-white py-4 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-gold hover:text-navy transition">Explore Offer</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-24 bg-cream">
+        <div class="max-w-7xl mx-auto px-6 mb-16 text-center">
+            <h2 class="font-serif text-gold text-sm uppercase tracking-[0.3em] mb-4">Visual Journey</h2>
+            <h3 class="text-4xl md:text-5xl font-serif">A Glimpse into Paradise</h3>
+        </div>
+        
+        <div class="columns-2 md:columns-3 lg:columns-4 gap-4 max-w-7xl mx-auto px-4 space-y-4">
+            <div class="gallery-item overflow-hidden rounded-2xl fade-in"><img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80" alt="Resort" class="w-full object-cover"></div>
+            <div class="gallery-item overflow-hidden rounded-2xl fade-in"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80" alt="Beach" class="w-full object-cover"></div>
+            <div class="gallery-item overflow-hidden rounded-2xl fade-in"><img src="https://images.unsplash.com/photo-1544124499-58912cbddaad?w=600&q=80" alt="Spa" class="w-full object-cover"></div>
+            <div class="gallery-item overflow-hidden rounded-2xl fade-in"><img src="https://images.unsplash.com/photo-1512918766671-ed6a07be03f1?w=600&q=80" alt="Bedroom" class="w-full object-cover"></div>
+            <div class="gallery-item overflow-hidden rounded-2xl fade-in"><img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80" alt="Lounge" class="w-full object-cover"></div>
+            <div class="gallery-item overflow-hidden rounded-2xl fade-in"><img src="https://images.unsplash.com/photo-1551882547-ff43c636a04b?w=600&q=80" alt="Dinner" class="w-full object-cover"></div>
+            <div class="gallery-item overflow-hidden rounded-2xl fade-in"><img src="https://images.unsplash.com/photo-1493333858339-dfcff1c44520?w=600&q=80" alt="View" class="w-full object-cover"></div>
+            <div class="gallery-item overflow-hidden rounded-2xl fade-in"><img src="https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=600&q=80" alt="Entrance" class="w-full object-cover"></div>
+            <div class="gallery-item overflow-hidden rounded-2xl fade-in"><img src="https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=600&q=80" alt="Hall" class="w-full object-cover"></div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="py-24 bg-navy text-white overflow-hidden relative">
+        <div class="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+            <i data-lucide="quote" class="w-64 h-64"></i>
+        </div>
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="font-serif text-gold text-sm uppercase tracking-[0.3em] mb-8">Guest Chronicles</h2>
+            
+            <div id="review-carousel" class="relative group">
+                <div class="review-slide active transition-opacity duration-500">
+                    <div class="flex justify-center gap-1 mb-6 text-gold">
+                        <i data-lucide="star" class="w-5 fill-current"></i>
+                        <i data-lucide="star" class="w-5 fill-current"></i>
+                        <i data-lucide="star" class="w-5 fill-current"></i>
+                        <i data-lucide="star" class="w-5 fill-current"></i>
+                        <i data-lucide="star" class="w-5 fill-current"></i>
+                    </div>
+                    <blockquote class="text-2xl md:text-3xl font-serif mb-8 leading-relaxed">"The level of service here is simply unparalleled. From the moment I stepped in, the staff anticipated my every need. It's not just a hotel; it's a lifestyle."</blockquote>
+                    <p class="font-bold uppercase tracking-widest text-xs">— Seraphina Vance 🇬🇧</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4 mt-12">
+                <button class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-gold hover:border-gold transition"><i data-lucide="chevron-left"></i></button>
+                <button class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-gold hover:border-gold transition"><i data-lucide="chevron-right"></i></button>
+            </div>
+            
+            <div class="mt-16 pt-16 border-t border-white/10 flex flex-wrap justify-center gap-12 opacity-50">
+                <div class="flex items-center gap-2"><i data-lucide="star" class="w-4"></i> <span class="text-[10px] font-bold uppercase tracking-widest">Tripadvisor Traveler Choice</span></div>
+                <div class="flex items-center gap-2"><i data-lucide="award" class="w-4"></i> <span class="text-[10px] font-bold uppercase tracking-widest">5 Diamond Rated</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section class="py-24 px-6 max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div class="fade-in">
+            <h2 class="font-serif text-gold text-sm uppercase tracking-[0.3em] mb-4">The Heart of Luxury</h2>
+            <h3 class="text-4xl font-serif mb-8 leading-tight">Conveniently Located In The Prestigious Zenith District</h3>
+            <p class="text-gray-600 mb-10">We are located just minutes away from the city's main cultural attractions, upscale shopping avenues, and the international airport terminal.</p>
+            
+            <ul class="space-y-6">
+                <li class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-cream rounded-xl flex items-center justify-center text-gold"><i data-lucide="shopping-bag"></i></div>
+                    <div>
+                        <p class="font-bold text-xs uppercase tracking-widest leading-none">Royal Avenue Mall</p>
+                        <p class="text-xs text-gray-400 mt-1">2 mins walk</p>
+                    </div>
+                </li>
+                <li class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-cream rounded-xl flex items-center justify-center text-gold"><i data-lucide="palmtree"></i></div>
+                    <div>
+                        <p class="font-bold text-xs uppercase tracking-widest leading-none">Botanical Heritage Gardens</p>
+                        <p class="text-xs text-gray-400 mt-1">5 mins drive</p>
+                    </div>
+                </li>
+                <li class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-cream rounded-xl flex items-center justify-center text-gold"><i data-lucide="landmark"></i></div>
+                    <div>
+                        <p class="font-bold text-xs uppercase tracking-widest leading-none">National Art Museum</p>
+                        <p class="text-xs text-gray-400 mt-1">10 mins drive</p>
+                    </div>
+                </li>
+            </ul>
+            <button class="mt-12 bg-navy text-white px-10 py-4 rounded-full font-bold uppercase tracking-widest text-sm hover:translate-x-2 transition shadow-xl inline-flex items-center gap-3">Get Directions <i data-lucide="external-link" class="w-4"></i></button>
+        </div>
+        <div class="h-[500px] rounded-3xl overflow-hidden shadow-2xl fade-in">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d158857.7281066703!2d-0.24168147631720888!3d51.5287718408761!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d8a00baf21de75%3A0x52963a5addd52a99!2sLondon!5e0!3m2!1sen!2suk!4v1714515000000!5m2!1sen!2suk" class="w-full h-full grayscale hover:grayscale-0 transition-all duration-700" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-24 bg-white/40">
+        <div class="max-w-3xl mx-auto px-6">
+            <h2 class="text-center font-serif text-4xl mb-12">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <!-- Accordion 1 -->
+                <div class="bg-white rounded-2xl border border-cream overflow-hidden">
+                    <button class="w-full px-8 py-6 text-left flex justify-between items-center font-bold uppercase tracking-widest text-xs FAQ-toggle">
+                        What are the check-in and check-out times?
+                        <i data-lucide="plus" class="transition-transform"></i>
+                    </button>
+                    <div class="px-8 pb-6 text-sm text-gray-500 hidden FAQ-content">Check-in time starts at 3:00 PM, and check-out is at 11:00 AM. We offer flexible early check-in and late check-out options based on availability.</div>
+                </div>
+                <!-- Accordion 2 -->
+                <div class="bg-white rounded-2xl border border-cream overflow-hidden">
+                    <button class="w-full px-8 py-6 text-left flex justify-between items-center font-bold uppercase tracking-widest text-xs FAQ-toggle">
+                        Is airport transportation available?
+                        <i data-lucide="plus" class="transition-transform"></i>
+                    </button>
+                    <div class="px-8 pb-6 text-sm text-gray-500 hidden FAQ-content">Yes, we provide luxury VIP airport transfers in our private fleet of Tesla Model S vehicles. Please contact our concierge 24 hours in advance.</div>
+                </div>
+                <!-- Accordion 3 -->
+                <div class="bg-white rounded-2xl border border-cream overflow-hidden">
+                    <button class="w-full px-8 py-6 text-left flex justify-between items-center font-bold uppercase tracking-widest text-xs FAQ-toggle">
+                        Do you offer gluten-free dining options?
+                        <i data-lucide="plus" class="transition-transform"></i>
+                    </button>
+                    <div class="px-8 pb-6 text-sm text-gray-500 hidden FAQ-content">Absolutely. Our Michelin-starred restaurant and in-room dining menus all feature extensive gluten-free and vegan selections.</div>
+                </div>
+            </div>
+            <p class="text-center mt-12 text-sm text-gray-400">View more questions in our <a href="#" class="text-gold underline">Help Center</a></p>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-24 px-6 bg-gold text-navy">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="font-serif text-4xl md:text-5xl mb-6">Join the Inner Circle</h2>
+            <p class="text-lg opacity-80 mb-10">Subscribe to receive exclusive offers and 15% off your first stay.</p>
+            <form class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+                <input type="email" placeholder="Your Email Address" class="flex-grow px-6 py-4 rounded-full outline-none bg-white/20 border-white/20 border focus:bg-white transition placeholder:text-navy/50 font-bold uppercase tracking-widest text-xs">
+                <button class="bg-navy text-white px-8 py-4 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-navy transition shadow-xl">Subscribe</button>
+            </form>
+            <p class="mt-6 text-[10px] uppercase font-bold tracking-widest opacity-40">Zero spam. Pure luxury. Unsubscribe at any time.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-white pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-24">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center gap-2 mb-8">
+                    <span class="font-serif text-3xl font-bold text-gold">LUXE ZENITH</span>
+                </div>
+                <p class="text-gray-400 max-w-sm leading-relaxed mb-8">Creating a legacy of excellence in hospitality, where every detail is a masterpiece and every guest is royalty.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-gold transition"><i data-lucide="instagram"></i></a>
+                    <a href="#" class="hover:text-gold transition"><i data-lucide="facebook"></i></a>
+                    <a href="#" class="hover:text-gold transition"><i data-lucide="linkedin"></i></a>
+                    <a href="#" class="hover:text-gold transition"><i data-lucide="twitter"></i></a>
+                </div>
+            </div>
+            <div>
+                <h5 class="font-bold uppercase tracking-widest text-[10px] mb-8 text-gold">Quick Links</h5>
+                <ul class="space-y-4 text-sm text-gray-400">
+                    <li><a href="#about" class="hover:text-white transition">About Us</a></li>
+                    <li><a href="#rooms" class="hover:text-white transition">Rooms & Suites</a></li>
+                    <li><a href="#amenities" class="hover:text-white transition">Hotel Amenities</a></li>
+                    <li><a href="#offers" class="hover:text-white transition">Special Offers</a></li>
+                    <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="font-bold uppercase tracking-widest text-[10px] mb-8 text-gold">Contact Us</h5>
+                <ul class="space-y-4 text-sm text-gray-400">
+                    <li class="flex items-center gap-3"><i data-lucide="phone" class="w-4 text-gold"></i> +1 (234) 567 890</li>
+                    <li class="flex items-center gap-3"><i data-lucide="mail" class="w-4 text-gold"></i> stays@luxezenith.com</li>
+                    <li class="flex items-center gap-3"><i data-lucide="map-pin" class="w-4 text-gold"></i> 777 Platinum Way, Metropolis</li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto pt-12 border-t border-white/10 flex flex-col md:row items-center justify-between gap-6">
+            <p class="text-[10px] uppercase font-bold tracking-[0.2em] opacity-30 tracking-widest">© 2026 Luxe Zenith Hotels & Resorts. All Rights Reserved.</p>
+            <div class="flex gap-6 opacity-30">
+                <i data-lucide="credit-card"></i>
+                <i data-lucide="badge-check"></i>
+                <i data-lucide="lock"></i>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Exit-Intent Popup -->
+    <div id="exit-popup" class="fixed inset-0 z-[100] hidden items-center justify-center p-6 bg-black/60">
+        <div class="bg-white max-w-xl w-full rounded-3xl overflow-hidden relative shadow-2xl flex flex-col md:flex-row">
+            <button class="absolute top-4 right-4 z-10 p-2 bg-white/50 rounded-full" id="close-exit-btn"><i data-lucide="x" class="w-4"></i></button>
+            <div class="md:w-1/2 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1541971875076-8f970d573be6?w=600&q=80" alt="Special Deal" class="w-full h-full object-cover">
+            </div>
+            <div class="md:w-1/2 p-8 flex flex-col justify-center">
+                <p class="text-gold font-bold uppercase tracking-widest text-[10px] mb-2">Wait! Don't leave just yet</p>
+                <h4 class="font-serif text-3xl mb-4">Want an Extra 10% Off?</h4>
+                <p class="text-sm text-gray-500 mb-6">Book within the next 20 minutes to receive an exclusive discount on your next luxury escape.</p>
+                <button class="bg-gold text-navy w-full py-4 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-navy hover:text-white transition">Use Code: ZENITH10</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Buttons -->
+    <a href="https://wa.me/#" target="_blank" class="fixed bottom-6 right-6 z-40 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all">
+        <i data-lucide="message-square" class="w-6 h-6"></i>
+    </a>
+    
+    <div class="md:hidden fixed bottom-6 left-6 right-24 z-40">
+        <button class="w-full bg-navy text-white py-4 rounded-full font-bold uppercase tracking-widest text-xs shadow-2xl skew-hover">
+            Book Now ⚡
+        </button>
+    </div>
+
+    <!-- Cookie Consent -->
+    <div id="cookie-banner" class="fixed bottom-0 left-0 w-full bg-white/95 border-t border-cream z-[70] p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+        <p class="text-xs text-gray-600 max-w-2xl px-6">We use cookies to enhance your experience and show you relevant content. By continuing to visit our site you agree to our use of cookies.</p>
+        <div class="flex gap-4 pr-6">
+            <button class="text-xs font-bold uppercase tracking-widest border border-gold px-6 py-2 rounded-full" onclick="document.getElementById('cookie-banner').remove()">Decline</button>
+            <button class="text-xs font-bold uppercase tracking-widest bg-gold text-navy px-8 py-2 rounded-full shadow-lg" onclick="document.getElementById('cookie-banner').remove()">Accept All</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Init Lucide
+        lucide.createIcons();
+
+        // Loading and Animations
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 500);
+
+            // Scroll animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        });
+
+        // Sticky Nav
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('nav');
+            const navLinks = document.getElementById('nav-links');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-navy', 'py-3', 'shadow-xl');
+                nav.classList.remove('py-4');
+                navLinks.classList.remove('text-white');
+                navLinks.classList.add('text-white/80');
+            } else {
+                nav.classList.remove('bg-navy', 'py-3', 'shadow-xl');
+                nav.classList.add('py-4');
+                navLinks.classList.add('text-white');
+            }
+        });
+
+        // Mobile Menu
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('translate-x-full');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('translate-x-full');
+        });
+
+        // Booking Date Logic
+        const checkIn = document.getElementById('check-in');
+        const checkOut = document.getElementById('check-out');
+        const today = new Date().toISOString().split('T')[0];
+        checkIn.min = today;
+        
+        checkIn.addEventListener('change', () => {
+            checkOut.min = checkIn.value;
+        });
+
+        document.getElementById('check-availability').addEventListener('click', () => {
+            if (!checkIn.value || !checkOut.value) {
+                alert('Please select check-in and check-out dates.');
+                return;
+            }
+            alert('Searching for luxury availability on your chosen dates...');
+        });
+
+        // Countdown Timers
+        function updateCountdowns() {
+            document.querySelectorAll('.countdown').forEach(timer => {
+                const targetTime = new Date(timer.dataset.time).getTime();
+                const now = new Date().getTime();
+                const diff = targetTime - now;
+
+                if (diff < 0) {
+                    timer.innerHTML = "EXPIRED";
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                timer.children[0].firstElementChild.innerText = String(days).padStart(2, '0');
+                timer.children[1].firstElementChild.innerText = String(hours).padStart(2, '0');
+                timer.children[2].firstElementChild.innerText = String(mins).padStart(2, '0');
+            });
+        }
+        setInterval(updateCountdowns, 1000);
+        updateCountdowns();
+
+        // Exit Intent
+        let mouseHasLeft = false;
+        document.addEventListener('mouseleave', (e) => {
+            if (e.clientY < 0 && !mouseHasLeft) {
+                document.getElementById('exit-popup').style.display = 'flex';
+                mouseHasLeft = true;
+            }
+        });
+
+        document.getElementById('close-exit-btn').addEventListener('click', () => {
+            document.getElementById('exit-popup').style.display = 'none';
+        });
+
+        // FAQ Toggle
+        document.querySelectorAll('.FAQ-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const content = toggle.nextElementSibling;
+                const icon = toggle.querySelector('i');
+                const isOpen = !content.classList.contains('hidden');
+                
+                // Close all others
+                document.querySelectorAll('.FAQ-content').forEach(c => c.classList.add('hidden'));
+                document.querySelectorAll('.FAQ-toggle i').forEach(i => i.style.transform = 'rotate(0)');
+
+                if (!isOpen) {
+                    content.classList.remove('hidden');
+                    icon.style.transform = 'rotate(45deg)';
+                }
+            });
+        });
+
+        // Review Carousel simple logic
+        const slides = [
+            { text: '"The level of service here is simply unparalleled. From the moment I stepped in, the staff anticipated my every need."', author: 'Seraphina Vance 🇬🇧' },
+            { text: '"A masterpiece of design and comfort. The rooftop infinity pool at sunset is an experience that stays with you forever."', author: 'Jean-Pierre Laurent 🇫🇷' },
+            { text: '"Business travel usually feels like a chore, but Luxe Zenith made it feel like a vacation. Impeccable high-speed WiFi and quiet library."', author: 'Hiroshi Tanaka 🇯🇵' }
+        ];
+        let currentSlide = 0;
+        const carousel = document.getElementById('review-carousel').firstElementChild;
+        
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            carousel.style.opacity = '0';
+            setTimeout(() => {
+                carousel.querySelector('blockquote').innerText = slides[currentSlide].text;
+                carousel.querySelector('p').innerText = `— ${slides[currentSlide].author}`;
+                carousel.style.opacity = '1';
+            }, 500);
+        }
+        setInterval(nextSlide, 8000);
+
+    </script>
+</body>
+</html>
